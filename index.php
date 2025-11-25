@@ -1,1 +1,3 @@
-<?php header("Location: /client_side/admin.php"); ?>
+<?php //hello world
+header("Location: /client_side/admin.php"); ?>
+
