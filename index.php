@@ -1,0 +1,1 @@
+<?php header("Location: /client_side/admin.php"); ?>
