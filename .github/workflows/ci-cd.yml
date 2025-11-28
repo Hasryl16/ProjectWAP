@@ -1,79 +1,123 @@
-# Workflow GitHub Actions untuk Auto Deploy PHP Todo App
-# Workflow ini akan berjalan otomatis ketika ada push ke branch master
-# Fungsinya: pull kode terbaru dan rebuild semua Docker container
-
 name: CI/CD Auto Pull and Rebuild
 
-# Kapan workflow ini akan dijalankan:
-# 1. Ketika ada push ke branch main (otomatis)
-# 2. Manual trigger melalui GitHub Actions tab
 on:
   push:
-    branches: [ master ]  # Hanya berjalan ketika push ke master
-  workflow_dispatch:      # Bisa dijalankan manual juga
+    branches: [ master ]
+  workflow_dispatch:
 
 jobs:
-  php-project-2:
-    runs-on: [php-project-2]
-    
+  deploy-fatur:
+    runs-on: [fatur]
+
     steps:
-    # Step 0: Detect project path dynamically
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
     - name: Set project path
       run: |
         PROJECT_PATH=$(find /home -name 'php-project-2' -type d 2>/dev/null | head -1)
         if [ -z "$PROJECT_PATH" ]; then
-          echo "❌ Error: Folder php-project-2 tidak ditemukan di /home"
-          echo "Pastikan project sudah di-clone ke salah satu user directory"
+          echo "❌ Folder php-project-2 tidak ditemukan"
           exit 1
         fi
         echo "PROJECT_PATH=$PROJECT_PATH" >> $GITHUB_ENV
-        echo "✅ Found project at: $PROJECT_PATH"
-        
-    # Step 1: Ambil kode terbaru dari branch master
+        echo "📁 Project path: $PROJECT_PATH"
+    
+    - name: Fix local repo by fresh clone
+      working-directory: ${{ env.PROJECT_PATH }}
+      run: |
+        cd ${{ env.PROJECT_PATH }}
+        rm -rf .git
+        git init
+        git remote add origin https://github.com/Hasryl16/php-project-2.git
+        git fetch origin master
+        git checkout -f master
+      
+
     - name: Pull latest changes
       working-directory: ${{ env.PROJECT_PATH }}
       run: |
-        git fetch origin master      # Download update terbaru
-        git reset --hard origin/master  # Reset ke versi terbaru (hapus perubahan lokal)
-        
-    # Step 2: Stop semua container yang sedang berjalan
+        git fetch origin master
+        git reset --hard origin/master
+
     - name: Stop existing containers
       working-directory: ${{ env.PROJECT_PATH }}
-      run: |
-        docker compose down || true  # Stop container (|| true artinya lanjut walaupun error)
-        
-    # Step 3: Hapus image lama untuk menghemat storage
+      run: docker compose down || true
+
     - name: Remove old images
       working-directory: ${{ env.PROJECT_PATH }}
       run: |
-        docker system prune -f    # Hapus container/network yang tidak terpakai
-        docker image prune -a -f  # Hapus semua image yang tidak terpakai
-        
-    # Step 4: Build ulang dan jalankan semua container
+        docker system prune -f
+        docker image prune -a -f
+
     - name: Build and start containers
       working-directory: ${{ env.PROJECT_PATH }}
       run: |
-        docker compose build --no-cache  # Build image baru tanpa cache
-        docker compose up -d             # Jalankan container di background
-        
-    # Step 5: Tunggu sampai semua service siap
+        docker compose build --no-cache
+        docker compose up -d
+
     - name: Wait for services to be ready
       working-directory: ${{ env.PROJECT_PATH }}
       run: |
-        sleep 30                # Tunggu 30 detik
-        docker compose ps       # Lihat status semua container
-        
-    # Step 6: Test apakah aplikasi berjalan dengan baik
+        sleep 30
+        docker compose ps
+
     - name: Health check
+      run: curl -f http://localhost:80 || exit 1
+
+  deploy-hasryl:
+    runs-on: [testing]
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Set project path
       run: |
-        curl -f http://localhost:80 || exit 1  # Test akses ke aplikasi
-        
-    # Step 7: Kasih tahu hasil deployment
-    - name: Notify deployment status
-      if: always()  # Selalu jalankan step ini (sukses atau gagal)
-      run: |
-        if [ ${{ job.status }} == 'success' ]; then
-          echo "✅ Deployment berhasil di laptop-andi! Aplikasi sudah update ke versi terbaru"
-        else
-          echo "❌ Deployment gagal di laptop-andi! Cek log error di atas"
+        PROJECT_PATH=$(find /home -name 'php-project-2' -type d 2>/dev/null | head -1)
+        if [ -z "$PROJECT_PATH" ]; then
+          echo "❌ Folder php-project-2 tidak ditemukan"
+          exit 1
         fi
+        echo "PROJECT_PATH=$PROJECT_PATH" >> $GITHUB_ENV
+    
+    - name: Fix local repo by fresh clone
+      working-directory: ${{ env.PROJECT_PATH }}
+      run: |
+        cd ${{ env.PROJECT_PATH }}
+        rm -rf .git
+        git init
+        git remote add origin https://github.com/Hasryl16/testing-with-pajar.git
+        git fetch origin master
+        git checkout -f master
+
+    - name: Pull latest changes
+      working-directory: ${{ env.PROJECT_PATH }}
+      run: |
+        git fetch origin master
+        git reset --hard origin/master
+
+    - name: Stop existing containers
+      working-directory: ${{ env.PROJECT_PATH }}
+      run: docker compose down || true
+
+    - name: Remove old images
+      working-directory: ${{ env.PROJECT_PATH }}
+      run: |
+        docker system prune -f
+        docker image prune -a -f
+
+    - name: Build and start containers
+      working-directory: ${{ env.PROJECT_PATH }}
+      run: |
+        docker compose build --no-cache
+        docker compose up -d
+
+    - name: Wait for services to be ready
+      working-directory: ${{ env.PROJECT_PATH }}
+      run: |
+        sleep 30
+        docker compose ps
+
+    - name: Health check
+      run: curl -f http://localhost:80 || exit 1
