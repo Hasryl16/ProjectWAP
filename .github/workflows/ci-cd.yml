@@ -29,7 +29,7 @@ jobs:
         cd ${{ env.PROJECT_PATH }}
         rm -rf .git
         git init
-        git remote add origin git@github.com:Hasryl16/ProjectWAP.git
+        git remote add origin https://github.com/Hasryl16/ProjectWAP.git
         git fetch origin master
         git checkout -f master
       
@@ -90,7 +90,7 @@ jobs:
         git remote add origin git@github.com:Hasryl16/ProjectWAP.git
         git fetch origin master
         git checkout -f master
-        
+
     - name: Pull latest changes
       working-directory: ${{ env.PROJECT_PATH }}
       run: |
