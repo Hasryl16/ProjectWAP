@@ -14,8 +14,6 @@ include '../connection.php';
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<h1> Hello World </h1>
     <?php include 'header.php'; ?>
     <?php include 'hero.php'; ?>
     <?php include 'hotels.php'; ?>
