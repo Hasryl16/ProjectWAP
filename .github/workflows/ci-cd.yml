@@ -29,7 +29,7 @@ jobs:
         cd ${{ env.PROJECT_PATH }}
         rm -rf .git
         git init
-        git remote add origin https://github.com/Hasryl16/php-project-2.git
+        git remote add origin git@github.com:Hasryl16/ProjectWAP.git
         git fetch origin master
         git checkout -f master
       
@@ -66,7 +66,7 @@ jobs:
       run: curl -f http://localhost:80 || exit 1
 
   deploy-hasryl:
-    runs-on: [testing]
+    runs-on: [php-project-2]
 
     steps:
     - name: Checkout repo
@@ -87,10 +87,10 @@ jobs:
         cd ${{ env.PROJECT_PATH }}
         rm -rf .git
         git init
-        git remote add origin https://github.com/Hasryl16/testing-with-pajar.git
+        git remote add origin git@github.com:Hasryl16/ProjectWAP.git
         git fetch origin master
         git checkout -f master
-
+        
     - name: Pull latest changes
       working-directory: ${{ env.PROJECT_PATH }}
       run: |
