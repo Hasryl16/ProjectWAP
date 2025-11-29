@@ -2,6 +2,8 @@
 session_start();
 include '../connection.php';
 
+$conn = getConnection();
+
 // Check if user is logged in and is admin
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../client_side/login.php');

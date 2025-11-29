@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS db__hotel;
+USE db__hotel;
+
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/

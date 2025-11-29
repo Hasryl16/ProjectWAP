@@ -43,7 +43,7 @@
                                     ?>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-                                    <span class="h5 text-dark fw-bold">Rp <?php echo number_format($hotel['min_price'], 0, ',', '.'); ?>/night</span>
+                                    <span class="h5 text-dark fw-bold"><?php echo $hotel['min_price'] !== null ? 'Rp ' . number_format($hotel['min_price'], 0, ',', '.') . '/night' : 'Price not available'; ?></span>
                                     <a href="detailed.php?hotel_id=<?php echo htmlspecialchars($hotel['hotel_id']); ?>" class="btn btn-dark rounded-pill">Book Now</a>
                                 </div>
                             </div>

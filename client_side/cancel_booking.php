@@ -1,4 +1,5 @@
 <?php
+session_save_path('/var/lib/php/sessions');
 session_start();
 include '../connection.php';
 
