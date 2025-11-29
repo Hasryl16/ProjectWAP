@@ -1,9 +1,12 @@
-version: '3.8'
+# Docker Compose file for Hotel Booking App
+# No version field needed for Compose V2
+
 services:
   nginx:
     build:
       context: .
       dockerfile: Dockerfile.nginx
+    container_name: php-project-2-nginx
     ports:
       - "80:80"
     volumes:
@@ -12,11 +15,19 @@ services:
       - php
     networks:
       - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   php:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: php-project-2-php
     working_dir: /var/www/myphpapp
     volumes:
       - .:/var/www/myphpapp
@@ -31,9 +42,11 @@ services:
       - DB_PASSWORD=1234
     networks:
       - app-network
+    restart: unless-stopped
 
   mysql:
     image: mysql:8.0
+    container_name: php-project-2-mysql
     environment:
       MYSQL_ROOT_PASSWORD: 1234
       MYSQL_DATABASE: db__hotel
@@ -47,11 +60,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+      start_period: 30s
     networks:
       - app-network
+    restart: unless-stopped
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
+    container_name: php-project-2-phpmyadmin
     ports:
       - "8081:80"
     environment:
@@ -62,11 +78,15 @@ services:
         condition: service_healthy
     networks:
       - app-network
+    restart: unless-stopped
 
 volumes:
   mysql_data:
+    name: php-project-2-mysql-data
   php_sessions:
+    name: php-project-2-php-sessions
 
 networks:
   app-network:
+    name: php-project-2-network
     driver: bridge
