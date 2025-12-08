@@ -1,3 +1,3 @@
-<?php //hello world hello have a nice day hello nice
+<?php //hello world hello have a nice day hello nice day
 header("Location: /client_side/index.php"); ?>
 
